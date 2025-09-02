@@ -16,6 +16,10 @@ name = "tsc_vs_vdso"
 path = "src/tsc_vs_vdso.rs"
 
 
+[features]
+default = ["tsc"]
+tsc = []
+
 [dependencies]
 libc = "0.2"
 num_cpus = "1.16"
