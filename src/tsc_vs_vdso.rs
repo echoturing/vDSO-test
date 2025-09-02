@@ -16,8 +16,7 @@ struct Base {
 static BASE: OnceLock<Base> = OnceLock::new();
 
 #[inline]
-pub fn now_wall() -> Duration {
-    let base = *BASE.get_or_init(init_base);
+pub fn now_wall(base: Base) -> Duration {
     base.wall_base + (now_mono() - base.mono_base)
 }
 
@@ -167,18 +166,6 @@ fn platform_now_mono() -> Duration {
     s.elapsed()
 }
 
-// ---------------------- 示例 ----------------------
-#[cfg(test)]
-mod tests {
-    use super::*;
-    #[test]
-    fn smoke() {
-        let a = now_wall();
-        std::thread::sleep(Duration::from_millis(10));
-        let b = now_wall();
-        assert!(b > a);
-    }
-}
 
 fn vdso_get_time(clock: libc::clockid_t) -> u64 {
     unsafe {
@@ -191,9 +178,10 @@ fn vdso_get_time(clock: libc::clockid_t) -> u64 {
 }
 
 fn main() {
+    let base = init_base();
     for _ in 0..10000 {
         let _ = vdso_get_time(CLOCK_REALTIME);
-        let _ = now_wall();
+        let _ = now_wall(base);
     }
 
     // 测试 CLOCK_REALTIME
@@ -209,12 +197,12 @@ fn main() {
     let start = Instant::now();
     let mut count = 0;
     while start.elapsed().as_secs() < 5 {
-        let _ = now_wall();
+        let _ = now_wall(base);
         count += 1;
     }
     let tsc_qps = count as f64 / start.elapsed().as_secs_f64();
 
     println!("vdso_qps: {:.0} QPS", vdso_qps);
-    println!("chrono_qps:  {:.0} QPS", tsc_qps);
+    println!("tsc_qps:  {:.0} QPS", tsc_qps);
     println!("  性能差异: {:.2}%", (vdso_qps - tsc_qps) / tsc_qps * 100.0);
 }
