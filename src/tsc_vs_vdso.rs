@@ -7,6 +7,16 @@ fn rdtsc() -> u64 {
     unsafe { _rdtsc() }
 }
 
+fn vdso_get_time(clock: libc::clockid_t) -> u64 {
+    unsafe {
+        let mut ts: timespec = std::mem::zeroed();
+        if clock_gettime(clock, &mut ts) != 0 {
+            panic!("clock_gettime failed");
+        }
+        Duration::new(ts.tv_sec as u64, ts.tv_nsec as u32).as_micros() as u64
+    }
+}
+
 /// 校准: 测量每秒钟增加多少 tick
 fn calibrate_tsc() -> f64 {
     let start_cycles = rdtsc();
@@ -35,10 +45,34 @@ fn main() {
     let cycles_per_sec = calibrate_tsc();
     println!("TSC frequency ~ {:.3} GHz", cycles_per_sec / 1e9);
 
-    // 模拟多次获取时间戳
-    for _ in 0..5 {
-        let ts = now_tsc(base_cycles, base_time, cycles_per_sec);
-        println!("ts = {:?}", ts);
-        std::thread::sleep(Duration::from_millis(500));
+    // 预热
+    for _ in 0..10000 {
+        let _ = vdso_get_time(CLOCK_REALTIME);
+        let _ = now_tsc(base_cycles, base_time, cycles_per_sec);
     }
+
+    // 测试 CLOCK_REALTIME
+    let start = Instant::now();
+    let mut count = 0;
+    while start.elapsed().as_secs() < 5 {
+        let _ = vdso_get_time(CLOCK_REALTIME);
+        count += 1;
+    }
+    let vdso_qps = count as f64 / start.elapsed().as_secs_f64();
+
+    // 测试 CLOCK_REALTIME
+    let start = Instant::now();
+    let mut count = 0;
+    while start.elapsed().as_secs() < 5 {
+        let _ = now_tsc(base_cycles, base_time, cycles_per_sec);
+        count += 1;
+    }
+    let tsc_qps = count as f64 / start.elapsed().as_secs_f64();
+
+    println!("vdso_qps: {:.0} QPS", vdso_qps);
+    println!("tsc_qps:  {:.0} QPS", tsc_qps);
+    println!(
+        "  性能差异: {:.2}%",
+        (vdso_qps - tsc_qps) / tsc_qps * 100.0
+    );
 }
