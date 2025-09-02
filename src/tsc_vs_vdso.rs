@@ -1,4 +1,5 @@
 use std::arch::x86_64::_rdtsc;
+use libc::{clock_gettime, timespec, CLOCK_REALTIME};
 use std::time::{Duration, Instant};
 
 /// 获取 CPU TSC 计数值
