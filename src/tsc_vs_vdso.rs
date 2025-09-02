@@ -45,6 +45,7 @@ fn platform_now_mono() -> Duration {
     // 优先：在 linux+x86_64 且启用 feature "tsc" 时，走 RDTSC 极致路径
     #[cfg(all(target_arch = "x86_64", feature = "tsc"))]
     {
+        println!("xxxxxx use tsc_now_mono");
         return tsc_now_mono();
     }
     // 其他情况：走 vDSO 的 clock_gettime(CLOCK_MONOTONIC)
