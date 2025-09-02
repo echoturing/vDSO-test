@@ -65,7 +65,8 @@ fn main() {
     let start = Instant::now();
     let mut count = 0;
     while start.elapsed().as_secs() < 5 {
-        let _ = now_tsc(base_cycles, base_time, cycles_per_sec);
+        // let _ = now_tsc(base_cycles, base_time, cycles_per_sec);
+        let _ = rdtsc();
         count += 1;
     }
     let tsc_qps = count as f64 / start.elapsed().as_secs_f64();
