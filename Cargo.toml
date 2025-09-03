@@ -7,13 +7,6 @@ edition = "2021"
 name = "main"
 path = "src/main.rs"
 
-[[bin]]
-name = "quick_test"
-path = "src/vdso_vs_chrono.rs"
-
-[[bin]]
-name = "tsc_vs_vdso"
-path = "src/tsc_vs_vdso.rs"
 
 [[bench]]
 name = "time_benchmark"
