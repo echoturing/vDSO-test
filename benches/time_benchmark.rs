@@ -217,9 +217,11 @@ fn bench_chrono(c: &mut Criterion) {
 criterion_group!(
     benches,
     bench_rdtsc,
+    bench_rdtsc_for_ts,
     bench_clock_realtime,
     bench_clock_monotonic,
     bench_chrono,
+
     // bench_time_methods_comparison,
     // bench_time_methods_with_iterations,
     // bench_time_methods_cache_effects
