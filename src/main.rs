@@ -48,6 +48,7 @@ fn now_tsc(base_cycles: u64, base_time: Duration, cycles_per_sec: f64) -> Durati
     base_time + Duration::from_secs_f64(delta_secs)
 }
 
+
 fn main() {
     let base_time = std::time::SystemTime::now()
         .duration_since(std::time::UNIX_EPOCH)
