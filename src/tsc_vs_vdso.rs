@@ -1,11 +1,20 @@
+#[cfg(target_arch = "x86_64")]
 use std::arch::x86_64::_rdtsc;
 use libc::{clock_gettime, timespec, CLOCK_REALTIME};
 use std::time::{Duration, Instant};
 
 /// 获取 CPU TSC 计数值
+#[cfg(target_arch = "x86_64")]
 #[inline]
 fn rdtsc() -> u64 {
     unsafe { _rdtsc() }
+}
+
+#[cfg(not(target_arch = "x86_64"))]
+#[inline]
+fn rdtsc() -> u64 {
+    // 在非 x86_64 平台上返回一个占位值
+    0
 }
 
 fn vdso_get_time(clock: libc::clockid_t) -> u64 {

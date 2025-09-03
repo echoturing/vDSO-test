@@ -15,6 +15,10 @@ path = "src/vdso_vs_chrono.rs"
 name = "tsc_vs_vdso"
 path = "src/tsc_vs_vdso.rs"
 
+[[bench]]
+name = "time_benchmark"
+harness = false
+
 
 [features]
 default = ["tsc"]
@@ -25,3 +29,6 @@ libc = "0.2"
 num_cpus = "1.16"
 rayon = "1.8"
 chrono = "0.4.41"
+
+[dev-dependencies]
+criterion = { version = "0.5", features = ["html_reports"] }
