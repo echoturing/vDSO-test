@@ -71,6 +71,12 @@ fn bench_rdtsc_for_ts(c: &mut Criterion) {
     });
 }
 
+fn bench_instance_now(c: &mut Criterion) {
+    c.bench_function("instance_now", |b| {
+        b.iter(|| black_box(Instant::now().elapsed().as_secs()))
+    });
+}
+
 /// Benchmark clock_gettime with CLOCK_REALTIME
 fn bench_clock_realtime(c: &mut Criterion) {
     c.bench_function("clock_gettime_realtime", |b| {
@@ -221,7 +227,7 @@ criterion_group!(
     bench_clock_realtime,
     bench_clock_monotonic,
     bench_chrono,
-
+    bench_instance_now,
     // bench_time_methods_comparison,
     // bench_time_methods_with_iterations,
     // bench_time_methods_cache_effects
